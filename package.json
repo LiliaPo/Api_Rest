@@ -15,9 +15,7 @@
   "type": "module",
   "scripts": {
     "start": "tsc && nodemon build/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "dev": "nodemon src/index.ts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "API",
