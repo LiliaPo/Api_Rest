@@ -13,10 +13,16 @@ app.use(Express.static(publicPath));
 
 
 
-app.get('/', function (req, res) {
-    const targetFilePath = path.join(publicPath, 'index.html');
+app.get('/', function (req: Express.Request, res: Express.Response) {
+    const targetFilePath = path.join(publicPath, '/index.html');
     res.sendFile(targetFilePath);
 });
+
+app.get('/pagina2', function (req: Express.Request, res: Express.Response) {
+    const targetFilePath = path.join(publicPath, '/pagina2.html');
+    res.sendFile(targetFilePath);
+});
+
 
 app.listen(port, function () {
     console.log(`Example app listening on port ${port}`);

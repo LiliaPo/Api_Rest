@@ -8,7 +8,11 @@ var port = 3000;
 var publicPath = path.join(__dirname, '../public');
 app.use(Express.static(publicPath));
 app.get('/', function (req, res) {
-    var targetFilePath = path.join(publicPath, 'index.html');
+    var targetFilePath = path.join(publicPath, '/index.html');
+    res.sendFile(targetFilePath);
+});
+app.get('/pagina2', function (req, res) {
+    var targetFilePath = path.join(publicPath, '/pagina2.html');
     res.sendFile(targetFilePath);
 });
 app.listen(port, function () {
