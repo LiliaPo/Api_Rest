@@ -1,0 +1,31 @@
+{
+  "name": "api_rest",
+  "version": "1.0.0",
+  "description": "Creacion de una API REST con TypeScript, Express",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.6",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.3"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "tsc && nodemon build/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "nodemon src/index.ts"
+  },
+  "keywords": [
+    "API",
+    "REST",
+    "TypeScript",
+    "Express"
+  ],
+  "author": "Lilia Pototchi",
+  "license": "ISC"
+}
+
