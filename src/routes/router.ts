@@ -2,6 +2,7 @@ import Express from 'express';
 import path from 'path';
 import pool from '../configDb.js';
 import { publicPath } from '../configData.js';
+import { saveUserHandler } from '../handlers/userHandler.js';
 
 
 const router = Express.Router();
@@ -17,10 +18,8 @@ router.get('/user', function (req: Express.Request, res: Express.Response) {
 });
 
 router.post('/user', async function (req: Express.Request, res: Express.Response) {
-        const queryString = `INSERT INTO "user" ("userName", "name", "first_surname", "password", "email") VALUES ('${req.body.username}', '${req.body.name}', '${req.body.surname}', '${req.body.password}','${req.body.email}')`;
-        console.log(queryString);
-        const result = await pool.query(queryString);
-           res.send(result.rows);
+      const result = saveUserHandler(req.body);
+      res.send(result);
  });
   
 
