@@ -1,5 +1,5 @@
 import Express from 'express';
-import { publicPath } from './configData.js';
+import { publicPath } from './config/configData.js';
 import { router } from './routes/router.js';
 var app = Express();
 var port = 3000;
