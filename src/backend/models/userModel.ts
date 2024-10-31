@@ -10,8 +10,8 @@ export async function getUsers(): Promise<any> {
     return result.rows;
 }
 
-export async function getUserById(userId: string): Promise<any> {
-    const queryString = `SELECT * FROM "user" WHERE "id" = $1`;
-    const result = await pool.query(queryString, [userId]);
+export async function getUserById(id: string): Promise<any> {
+    const queryString = `SELECT * FROM "user" WHERE "id" = $(id)`;
+    const result = await pool.query(queryString, [id]);
     return result.rows[0];
 }
