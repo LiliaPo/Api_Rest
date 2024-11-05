@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import { saveNewUser, getUsers, getUserById } from "../models/userModel.js";
+import { saveNewUser, getUsers, getUserById, findUserById } from "../models/userModel.js";
+import { User } from "../types/user.js";
 
-export async function newUser(data: any): Promise<string> {
+
+export async function newUser(user: User): Promise<string> {
     try {
-        const result = await saveNewUser(data);
+        const result = await saveNewUser(user);
         return result;
     } catch (error: any) {
         if (error.code === "23505") {
@@ -21,6 +22,6 @@ export async function getAllUsers (): Promise<string> {
 }
 
 export async function geUserById (id:string): Promise<string> {
-    const result = await getUserById (id);
+    const result = await findUserById (id);
     return result;
 }

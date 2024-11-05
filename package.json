@@ -4,6 +4,7 @@
   "description": "Creacion de una API REST con TypeScript, Express",
   "main": "index.js",
   "dependencies": {
+    "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "pg": "^8.13.0"
@@ -17,8 +18,10 @@
   },
   "type": "module",
   "scripts": {
-    "start": "tsc && node build/backend/index.js",
-    "dev": "tsc && nodemon build/index.js",
+    "build:backend": "tsc",
+    "build:frontend": "tsc -p src/frontend/tsconfig-front.json",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start": "npm run build && nodemon build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
