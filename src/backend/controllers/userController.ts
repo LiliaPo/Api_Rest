@@ -1,4 +1,4 @@
-import { saveNewUser, getUsers, getUserById, findUserById } from "../models/userModel.js";
+import { saveNewUser, getUsers, findUserById, deleteUserById } from "../models/userModel.js";
 import { User } from "../types/user.js";
 
 
@@ -21,7 +21,12 @@ export async function getAllUsers (): Promise<string> {
     return result;
 }
 
-export async function geUserById (id:string): Promise<string> {
+export async function getUser (id:number): Promise<string> {
     const result = await findUserById (id);
+    return result;
+}
+
+export async function deleteUser(id:number):Promise<any> {
+    const result = await deleteUserById(id);
     return result;
 }

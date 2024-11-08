@@ -11,13 +11,18 @@ export async function getUsers(): Promise<any> {
     return result.rows;
 }
 
-export async function getUserById(id: string): Promise<any> {
+export async function getUserById(id:number): Promise<any> {
     const queryString = `SELECT * FROM "user" WHERE "id" = $(id)`;
     const result = await pool.query(queryString, [id]);
     return result.rows[0];
 }
-export async function findUserById(id:string):Promise<any> {
+export async function findUserById(id:number):Promise<any> {
    const queryString = 'SELECT *FROM "user" WHERE "id" = ${id}';
    const result = await pool.query(queryString);
    return result.rows;    
+}
+export async function deleteUserById(id:number): Promise<any>{
+    const queryString = 'DELETE FROM "user" WHERE "id" = ${id}';
+    const result = await pool.query(queryString);
+    return result.rows;
 }
