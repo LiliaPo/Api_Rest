@@ -1,5 +1,5 @@
 import Express from 'express';
-import { User } from '../types/User.js';
+import { User } from '../types/user.js';
 import { deleteUser, getAllUsers, getUser, newUser } from '../controllers/userController.js';
 import { validateNumericParams } from '../middlewares/validateNumericParams.js';
 import { DeleteResult } from '../types/DeleteResult.js';
