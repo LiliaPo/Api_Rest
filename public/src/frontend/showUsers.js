@@ -8,19 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-<<<<<<< HEAD
-document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield axios.get("http://localhost:3000/api/v1/users");
-    let htmlUsers = "<ul>";
-    result.data.forEach((user) => {
-        htmlUsers += '<li>${user.name} ${user.first_surname}</li> ';
-    });
-=======
 document.addEventListener("DOMContentLoaded", () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield axios.get("http://localhost:3000/api/v1/users");
     let htmlUsers = "<ul>";
     result.data.forEach((user) => { htmlUsers += `<li>${user.name} ${user.first_surname}</li>`; });
->>>>>>> upstream/develop
     htmlUsers += "</ul>";
     document.getElementById("users").innerHTML = htmlUsers;
 }));

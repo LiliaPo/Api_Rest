@@ -9,5 +9,11 @@
    "strict": true,
    "skipLibCheck": true
   },
+<<<<<<< HEAD
   "includes": ["../frontend"]
 }
+=======
+  "include": ["../frontend"]
+}
+
+>>>>>>> upstream/develop

@@ -1,2 +1,7 @@
 /build
+<<<<<<< HEAD
 /node_modules
+=======
+/node_modules
+.env
+>>>>>>> upstream/develop
