@@ -1,35 +1,31 @@
 {
-  "name": "api_rest",
+  "name": "primera-api-express",
   "version": "1.0.0",
-  "description": "Creacion de una API REST con TypeScript, Express",
+  "description": "creacion de mi primera API Rest con ExpressJS y Typescript. Será un CRUD sobre una BD PosgreSQL",
   "main": "index.js",
-  "dependencies": {
-    "axios": "^1.7.7",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "pg": "^8.13.0"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.7.6",
-    "@types/pg": "^8.11.10",
-    "nodemon": "^3.1.7",
-    "typescript": "^5.6.3"
-  },
-  "type": "module",
   "scripts": {
-    "build:backend": "tsc",
-    "build:frontend": "tsc -p src/frontend/tsconfig-front.json",
-    "build": "npm run build:backend && npm run build:frontend",
-    "start": "npm run build && nodemon build/index.js",
+    "start": "tsc && nodemon build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "API",
-    "REST",
-    "TypeScript",
-    "Express"
+    "Rest",
+    "CRUD",
+    "Typescript",
+    "Buenas",
+    "prácticas",
+    "PosgreSQL"
   ],
-  "author": "Lilia Pototchi",
-  "license": "ISC"
+  "author": "Jano Soler",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.5",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.3"
+  },
+  "type": "module"
 }
