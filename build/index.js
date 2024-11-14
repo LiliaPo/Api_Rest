@@ -1,13 +1,12 @@
 import Express from 'express';
-import { publicPath } from './config/configData.js';
-import { router } from './routes/router.js';
-import routerApi from './routes/routerApi.js';
-const app = Express();
-const port = 3000;
-app.use(Express.urlencoded({ extended: true }));
-app.use(Express.static(publicPath));
-app.use("/", router);
-app.use("/api/v1/", routerApi);
-app.listen(port, function () {
-    console.log(`Example app listening on port ${port}`);
+import { errorHandler } from './backend/middlewares/errorHandler';
+var app = Express();
+app.use(Express.json());
+var port = 3000;
+app.get('/', function (req, res) {
+    res.send('<h1>Hello World!</h1>');
 });
+app.listen(port, function () {
+    console.log("Example app listening on port ".concat(port));
+});
+app.use(errorHandler);
