@@ -10,8 +10,6 @@ export interface Message {
 }
 
 export async function getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
-    console.log('Buscando mensajes entre usuarios:', user1Id, user2Id);
-
     const queryString = `
         SELECT 
             m.*,
@@ -25,8 +23,9 @@ export async function getMessagesBetweenUsers(user1Id: number, user2Id: number):
         ORDER BY m.created_at ASC`;
     
     try {
+        console.log('Buscando mensajes entre:', user1Id, user2Id);
         const result = await pool.query(queryString, [user1Id, user2Id]);
-        console.log('Mensajes encontrados:', result.rows);
+        console.log('Mensajes encontrados:', result.rows.length);
         return result.rows;
     } catch (error) {
         console.error('Error en getMessagesBetweenUsers:', error);
@@ -35,18 +34,22 @@ export async function getMessagesBetweenUsers(user1Id: number, user2Id: number):
 }
 
 export async function saveMessage(message: Message): Promise<Message> {
-    if (isNaN(message.sender_id) || isNaN(message.receiver_id)) {
-        throw new Error('IDs de usuario inválidos');
-    }
-
     const queryString = `
         INSERT INTO messages (sender_id, receiver_id, content, created_at, read)
         VALUES ($1, $2, $3, CURRENT_TIMESTAMP, false)
         RETURNING *`;
     
     try {
+        console.log('Guardando mensaje:', {
+            sender_id: message.sender_id,
+            receiver_id: message.receiver_id,
+            content: message.content
+        });
+        
         const values = [message.sender_id, message.receiver_id, message.content];
         const result = await pool.query(queryString, values);
+        
+        console.log('Mensaje guardado:', result.rows[0]);
         return result.rows[0];
     } catch (error) {
         console.error('Error en saveMessage:', error);
@@ -68,15 +71,24 @@ export async function markMessageAsRead(messageId: number): Promise<void> {
     }
 }
 
-// Función para verificar si hay mensajes
-export async function checkMessages(): Promise<boolean> {
-    const queryString = `SELECT COUNT(*) as count FROM messages`;
+// Función para verificar mensajes
+export async function checkMessages(userId: number): Promise<Message[]> {
+    const queryString = `
+        SELECT 
+            m.*,
+            s."userName" as sender_name,
+            r."userName" as receiver_name
+        FROM messages m
+        LEFT JOIN "user" s ON m.sender_id = s.id
+        LEFT JOIN "user" r ON m.receiver_id = r.id
+        WHERE m.sender_id = $1 OR m.receiver_id = $1
+        ORDER BY m.created_at ASC`;
+    
     try {
-        const result = await pool.query(queryString);
-        console.log('Total de mensajes en la BD:', result.rows[0].count);
-        return result.rows[0].count > 0;
+        const result = await pool.query(queryString, [userId]);
+        return result.rows;
     } catch (error) {
-        console.error('Error al verificar mensajes:', error);
+        console.error('Error en checkMessages:', error);
         throw error;
     }
 } 

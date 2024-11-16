@@ -53,29 +53,29 @@
         </button>
 
         <div class="row">
-            <!-- Mensajes Recibidos -->
+            <!-- Mensajes del Usuario -->
             <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-header">
                         <h3>Mensajes de <span id="userName">Usuario</span></h3>
                     </div>
                     <div class="card-body">
-                        <div class="message-container" id="receivedMessages">
-                            <!-- Los mensajes recibidos se cargarán aquí -->
+                        <div class="message-container" id="userMessages">
+                            <!-- Los mensajes del usuario se cargarán aquí -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Mensajes Enviados -->
+            <!-- Mensajes del Servidor -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h3>Mis Mensajes</h3>
                     </div>
                     <div class="card-body">
-                        <div class="message-container" id="sentMessages">
-                            <!-- Los mensajes enviados se mostrarán aquí -->
+                        <div class="message-container" id="serverMessages">
+                            <!-- Los mensajes del servidor se mostrarán aquí -->
                         </div>
                         <form id="messageForm" class="mt-3">
                             <div class="input-group">
@@ -97,7 +97,7 @@
         const userId = parseInt(urlParams.get('userId'));
         let userName = '';
 
-        // Cargar nombre del usuario y mensajes al iniciar
+        // Cargar mensajes al iniciar
         document.addEventListener('DOMContentLoaded', async () => {
             if (!userId || isNaN(userId)) {
                 alert('Usuario no válido');
@@ -128,21 +128,22 @@
                 const response = await fetch(`/api/messages/${userId}`);
                 const data = await response.json();
                 
-                const receivedMessages = document.getElementById('receivedMessages');
-                const sentMessages = document.getElementById('sentMessages');
+                const userMessages = document.getElementById('userMessages');
+                const serverMessages = document.getElementById('serverMessages');
                 
-                receivedMessages.innerHTML = '';
-                sentMessages.innerHTML = '';
+                userMessages.innerHTML = '';
+                serverMessages.innerHTML = '';
 
                 data.messages.forEach(message => {
                     const isFromUser = message.sender_id === userId;
-                    const container = isFromUser ? receivedMessages : sentMessages;
+                    const container = isFromUser ? userMessages : serverMessages;
                     const time = new Date(message.created_at).toLocaleString();
+                    const sender = isFromUser ? userName : 'Servidor';
 
-                    container.innerHTML += `
+                    const messageHtml = `
                         <div class="message ${isFromUser ? 'received' : 'sent'}">
                             <div class="message-header">
-                                ${isFromUser ? userName : 'Servidor'}
+                                ${sender}
                             </div>
                             <div class="message-content">
                                 ${message.content}
@@ -152,11 +153,13 @@
                             </div>
                         </div>
                     `;
+
+                    container.insertAdjacentHTML('beforeend', messageHtml);
                 });
 
                 // Scroll al último mensaje en ambos contenedores
-                receivedMessages.scrollTop = receivedMessages.scrollHeight;
-                sentMessages.scrollTop = sentMessages.scrollHeight;
+                userMessages.scrollTop = userMessages.scrollHeight;
+                serverMessages.scrollTop = serverMessages.scrollHeight;
             } catch (error) {
                 console.error('Error:', error);
             }
