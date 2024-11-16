@@ -1,19 +1,13 @@
 import { Request, Response } from 'express';
 import * as userModel from '../models/userModel.js';
-import { User } from '../types/user.js';
-import { DeleteResult } from '../types/DeleteResult.js';
 
 export async function getAllUsers(req: Request, res: Response): Promise<void> {
     try {
-        const result = await userModel.getAllUsers();
-        if (!result || result.length === 0) {
-            res.status(404).json({ message: "No se encontraron usuarios" });
-            return;
-        }
-        res.json(result);
+        const users = await userModel.getAllUsers();
+        res.json(users);
     } catch (error) {
         console.error('Error al obtener usuarios:', error);
-        res.status(500).json({ message: "Error interno del servidor" });
+        res.status(500).json({ message: "Error al obtener usuarios" });
     }
 }
 
@@ -26,55 +20,76 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
             res.status(404).json({ message: "Usuario no encontrado" });
         }
     } catch (error) {
-        console.error('Error al obtener usuario por ID:', error);
-        res.status(500).json({ message: "Error interno del servidor" });
+        console.error('Error al obtener usuario:', error);
+        res.status(500).json({ message: "Error al obtener usuario" });
     }
 }
 
 export async function createUser(req: Request, res: Response): Promise<void> {
     try {
-        const user: User = {
-            userName: req.body.username,
+        console.log('Datos recibidos en el controlador:', req.body);
+
+        const userData = {
+            userName: req.body.userName,
             name: req.body.name,
-            first_surname: req.body.surname,
+            first_surname: req.body.first_surname,
             email: req.body.email,
             password: req.body.password
         };
 
-        const result = await userModel.saveNewUser(user);
-        res.status(201).json({ 
+        // Validar que todos los campos necesarios estén presentes
+        const requiredFields = ['userName', 'name', 'first_surname', 'email', 'password'];
+        for (const field of requiredFields) {
+            if (!userData[field as keyof typeof userData]) {
+                res.status(400).json({ message: `El campo ${field} es requerido` });
+                return;
+            }
+        }
+
+        const newUser = await userModel.saveNewUser(userData);
+        res.status(201).json({
+            success: true,
             message: "Usuario creado correctamente",
-            user: result 
+            user: newUser
         });
     } catch (error: any) {
-        console.error('Error al crear usuario:', error);
+        console.error('Error en createUser:', error);
         if (error.code === '23505') {
-            res.status(409).json({ 
-                message: "El usuario o email ya existe en la base de datos" 
-            });
-            return;
+            res.status(409).json({ message: "El usuario o email ya existe" });
+        } else {
+            res.status(500).json({ message: "Error al crear usuario" });
         }
-        res.status(500).json({ 
-            message: "Error interno del servidor al crear el usuario" 
-        });
     }
 }
 
 export async function deleteUser(req: Request, res: Response): Promise<void> {
     try {
-        const result: DeleteResult = await userModel.deleteUser(req.params.id);
-        let statusCode = 200;
-        
-        if (!result.success && result.rowsAffected === 0) {
-            statusCode = 404;
+        const result = await userModel.deleteUser(req.params.id);
+        if (result.success) {
+            res.json({ message: result.message });
+        } else {
+            res.status(404).json({ message: result.message });
         }
-        if (!result.success && !("rowsAffected" in result)) {
-            statusCode = 500;
-        }
-        
-        res.status(statusCode).json({message: result.message});
     } catch (error) {
         console.error('Error al eliminar usuario:', error);
-        res.status(500).json({ message: "Error interno del servidor" });
+        res.status(500).json({ message: "Error al eliminar usuario" });
+    }
+}
+
+export async function updateUser(req: Request, res: Response): Promise<void> {
+    try {
+        const updatedUser = await userModel.updateUser(req.params.id, req.body);
+        if (updatedUser) {
+            res.json({ message: "Usuario actualizado correctamente", user: updatedUser });
+        } else {
+            res.status(404).json({ message: "Usuario no encontrado" });
+        }
+    } catch (error: any) {
+        console.error('Error al actualizar usuario:', error);
+        if (error.code === '23505') {
+            res.status(409).json({ message: "El usuario o email ya existe" });
+        } else {
+            res.status(500).json({ message: "Error al actualizar usuario" });
+        }
     }
 }

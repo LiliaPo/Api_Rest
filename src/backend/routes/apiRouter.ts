@@ -1,11 +1,10 @@
 import Express from 'express';
 import userRouter from './userRouter.js';
-import notificationRouter from './notificationRouter';
-
+import notificationRouter from './notificationRouter.js';
 
 const apiRouter = Express.Router();
 
-apiRouter.use("/notifications", notificationRouter);
-apiRouter.use("/users", userRouter);
+apiRouter.use('/users', userRouter);
+apiRouter.use('/notifications', notificationRouter);
 
 export default apiRouter;

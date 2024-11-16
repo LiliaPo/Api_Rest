@@ -24,12 +24,5 @@ export function validateNotification(req: Request, res: Response, next: NextFunc
         return;
     }
 
-    if (typeof type !== 'string' || type.trim().length === 0) {
-        res.status(400).json({ 
-            message: "type debe ser un texto no vacío" 
-        });
-        return;
-    }
-
     next();
 } 

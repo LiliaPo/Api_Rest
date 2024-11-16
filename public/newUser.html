@@ -1,65 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
-    <title>Document</title>
+    <title>Registro de Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </head>
 <body>
-    <form action="/api/v1/users" method="POST">
-        <p>
-        <label for="name-field">Nombre: </label>
-        <input type="text" name="name" id="name-field">
-        </p>
-        <p>
-        <label for="surname-field">Primer Apellido</label>
-        <input type="text" name="surname" id="surname-field">
-        </p>
-        <p>
-            <label for="username-field">Nombre de usuario</label>
-            <input type="text" name="username" id="username-field">
-        </p>
-        <p>
-            <label for="pwd-field">Password</label>
-            <input type="password" name="password" id="pwd-field">
-=======
-    <script type="module" src="./src/frontend/validateUserForm.js"></script>
-    <title>Registro de usuario</title>
-</head>
-<body>
-    <form action="/api/v1/users" method="POST" id="userForm">
-        <p>
-            <label for="name-field">Nombre: </label>
-            <input type="text" name="name" id="name-field">
-        </p>
-        <p>
-            <label for="surname-field">Primer apellido: </label>
-            <input type="text" name="surname" id="surname-field">
-        </p>
-        <p>
-            <label for="username-field">Nombre de usuario:</label>
-            <input type="text" name="username" id="username-field">
-        </p>
-        <p>
-            <label for="password-field">Password</label>
-            <input type="password" name="password" id="password-field">
->>>>>>> upstream/develop
-        </p>
-        <p>
-            <label for="email-field">Email</label>
-            <input type="email" name="email" id="email-field">
-        </p>
-<<<<<<< HEAD
-        <button type="submit">Registrar</button>
-    </form>
+    <div class="container mt-4">
+        <button onclick="window.location.href='index.html'" class="btn btn-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Volver
+        </button>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Registro de Usuario</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label for="userName">Nombre de Usuario</label>
+                                <input type="text" class="form-control" id="userName" name="userName" autocomplete="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="name">Nombre</label>
+                                <input type="text" class="form-control" id="name" name="name" autocomplete="given-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="first_surname">Apellido</label>
+                                <input type="text" class="form-control" id="first_surname" name="first_surname" autocomplete="family-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" autocomplete="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password">Contraseña</label>
+                                <input type="password" class="form-control" id="password" name="password" autocomplete="new-password" required>
+                            </div>
+                            <button type="button" onclick="registerUser()" class="btn btn-primary">Registrarse</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function registerUser() {
+            try {
+                const formData = {
+                    userName: document.getElementById('userName').value.trim(),
+                    name: document.getElementById('name').value.trim(),
+                    first_surname: document.getElementById('first_surname').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value.trim()
+                };
+
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    window.location.href = 'notifications.html';
+                } else {
+                    alert(result.message || 'Error al registrar usuario');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al registrar usuario');
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-=======
-        <p>
-            <input type="submit" value="Registrar">
-        </p>
-    </form>
-</body>
-</html>
->>>>>>> upstream/develop

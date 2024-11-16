@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Mensajes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        .message-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            border-left: 4px solid #0d6efd;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Botón Volver -->
+        <button onclick="window.location.href='newUser.html'" class="btn btn-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Volver
+        </button>
+
+        <h2>Sistema de Mensajes</h2>
+        
+        <!-- Enviar Mensajes -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Enviar Nuevo Mensaje</h4>
+            </div>
+            <div class="card-body">
+                <form id="messageForm">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Mensaje</label>
+                        <textarea class="form-control" id="message" rows="3" required 
+                            placeholder="Escribe tu mensaje aquí..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Mensajes Enviados -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Mis Mensajes</h4>
+            </div>
+            <div class="card-body message-list" id="messagesList">
+                <!-- Los mensajes se mostrarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enviar mensaje
+        document.getElementById('messageForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const messageText = document.getElementById('message').value;
+            
+            // Añadir mensaje a la lista
+            const messagesList = document.getElementById('messagesList');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message';
+            newMessage.innerHTML = `
+                <p class="mb-1">${messageText}</p>
+                <small class="text-muted">${new Date().toLocaleString()}</small>
+            `;
+            messagesList.insertBefore(newMessage, messagesList.firstChild);
+            
+            // Limpiar el formulario
+            document.getElementById('message').value = '';
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
