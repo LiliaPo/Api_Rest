@@ -11,26 +11,18 @@ export interface Message {
 
 export async function getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]> {
     const queryString = `
-        SELECT 
-            m.id,
-            m.sender_id,
-            m.receiver_id,
-            m.content,
-            m.created_at,
-            m.read,
-            s."userName" as sender_name,
-            r."userName" as receiver_name
+        SELECT m.*, 
+               s."userName" as sender_name,
+               r."userName" as receiver_name
         FROM messages m
-        LEFT JOIN "user" s ON m.sender_id = s.id
-        LEFT JOIN "user" r ON m.receiver_id = r.id
+        JOIN "user" s ON m.sender_id = s.id
+        JOIN "user" r ON m.receiver_id = r.id
         WHERE (m.sender_id = $1 AND m.receiver_id = $2)
            OR (m.sender_id = $2 AND m.receiver_id = $1)
         ORDER BY m.created_at ASC`;
     
     try {
-        console.log('Buscando mensajes entre usuarios:', user1Id, user2Id);
         const result = await pool.query(queryString, [user1Id, user2Id]);
-        console.log('Mensajes encontrados:', result.rows);
         return result.rows;
     } catch (error) {
         console.error('Error en getMessagesBetweenUsers:', error);
@@ -45,13 +37,25 @@ export async function saveMessage(message: Message): Promise<Message> {
         RETURNING *`;
     
     try {
-        console.log('Guardando mensaje:', message);
         const values = [message.sender_id, message.receiver_id, message.content];
         const result = await pool.query(queryString, values);
-        console.log('Mensaje guardado:', result.rows[0]);
         return result.rows[0];
     } catch (error) {
         console.error('Error en saveMessage:', error);
+        throw error;
+    }
+}
+
+export async function markMessageAsRead(messageId: number): Promise<void> {
+    const queryString = `
+        UPDATE messages 
+        SET read = true 
+        WHERE id = $1`;
+    
+    try {
+        await pool.query(queryString, [messageId]);
+    } catch (error) {
+        console.error('Error en markMessageAsRead:', error);
         throw error;
     }
 }

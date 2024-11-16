@@ -6,39 +6,52 @@
     <title>Conversación</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="/styles/style.css" rel="stylesheet">
     <style>
         .message-container {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
-            margin-bottom: 20px;
             padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
         .message {
-            margin: 10px;
+            margin-bottom: 15px;
             padding: 15px;
-            border-radius: 15px;
-            max-width: 70%;
+            border-radius: 8px;
             position: relative;
+            clear: both;
+            max-width: 80%;
         }
-        .sent {
-            background-color: #dcf8c6;
-            margin-left: auto;
-            margin-right: 10px;
+        .message.received {
+            background-color: #e8f5e9;  /* Verde claro para mensajes del usuario */
+            float: left;
         }
-        .received {
-            background-color: #ffffff;
-            margin-right: auto;
-            margin-left: 10px;
-            border: 1px solid #e0e0e0;
+        .message.sent {
+            background-color: #e3f2fd;  /* Azul claro para mensajes del servidor */
+            float: right;
         }
         .message-time {
-            font-size: 0.75em;
+            font-size: 0.8em;
             color: #666;
             margin-top: 5px;
             text-align: right;
         }
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
         .message-content {
             word-wrap: break-word;
+            margin: 5px 0;
+        }
+        .conversation-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -50,13 +63,10 @@
         </button>
 
         <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">
-                    <i class="bi bi-chat-dots"></i>
-                    Conversación con <span id="userName">Usuario</span>
-                </h3>
+            <div class="card-header">
+                <h3>Conversación con <span id="userName">Usuario</span></h3>
             </div>
-            <div class="card-body bg-light">
+            <div class="card-body">
                 <!-- Contenedor de mensajes -->
                 <div class="message-container" id="messageContainer">
                     <!-- Los mensajes se cargarán aquí -->
@@ -77,59 +87,74 @@
     </div>
 
     <script>
-        const userId = new URLSearchParams(window.location.search).get('userId');
-        const userName = localStorage.getItem('selectedUserName');
-        document.getElementById('userName').textContent = userName || 'Usuario';
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        let userName = '';
 
-        // Cargar mensajes al iniciar y cada 3 segundos
-        document.addEventListener('DOMContentLoaded', () => {
+        // Cargar nombre del usuario y mensajes al iniciar
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Obtener información del usuario
+            try {
+                const response = await fetch(`/api/users/${userId}`);
+                const user = await response.json();
+                userName = user.userName;
+                document.getElementById('userName').textContent = userName;
+            } catch (error) {
+                console.error('Error al obtener información del usuario:', error);
+            }
+
+            // Cargar mensajes
             loadMessages();
+            // Actualizar mensajes cada 3 segundos
             setInterval(loadMessages, 3000);
         });
 
+        // Función para cargar mensajes
         async function loadMessages() {
             try {
                 const response = await fetch(`/api/messages/${userId}`);
                 const data = await response.json();
                 
-                if (!data.messages || data.messages.length === 0) {
-                    const container = document.getElementById('messageContainer');
-                    container.innerHTML = '<div class="text-center text-muted">No hay mensajes aún</div>';
-                    return;
-                }
+                // Ordenar mensajes por fecha
+                const messages = data.messages.sort((a, b) => 
+                    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                );
                 
                 const container = document.getElementById('messageContainer');
-                container.innerHTML = data.messages.map(message => {
-                    const isReceived = parseInt(message.sender_id) === parseInt(userId);
+                container.innerHTML = messages.map(message => {
+                    const isFromUser = message.sender_id == userId;
+                    const time = new Date(message.created_at).toLocaleString();
+                    const sender = isFromUser ? userName : 'Servidor';
+                    
                     return `
-                        <div class="message ${isReceived ? 'received' : 'sent'}">
+                        <div class="message ${isFromUser ? 'received' : 'sent'}">
+                            <div class="message-header">
+                                ${sender}
+                            </div>
                             <div class="message-content">
-                                <strong>${isReceived ? message.sender_name : 'Servidor'}:</strong><br>
                                 ${message.content}
                             </div>
                             <div class="message-time">
-                                ${new Date(message.created_at).toLocaleString()}
+                                ${time}
                             </div>
                         </div>
                     `;
                 }).join('');
                 
+                // Limpiar los floats después de los mensajes
+                container.innerHTML += '<div style="clear: both;"></div>';
+                
+                // Scroll al último mensaje
                 container.scrollTop = container.scrollHeight;
             } catch (error) {
-                console.error('Error al cargar mensajes:', error);
-                const container = document.getElementById('messageContainer');
-                container.innerHTML = '<div class="text-center text-danger">Error al cargar mensajes</div>';
+                console.error('Error:', error);
             }
         }
 
+        // Enviar mensaje
         document.getElementById('messageForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const content = document.getElementById('messageContent').value;
-
-            if (!content.trim()) {
-                alert('Por favor, escribe un mensaje');
-                return;
-            }
 
             try {
                 const response = await fetch('/api/messages', {
@@ -138,7 +163,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        receiver_id: parseInt(userId),
+                        receiver_id: userId,
                         content: content,
                         sender_id: 1  // ID del servidor
                     })

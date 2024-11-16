@@ -1,5 +1,4 @@
 import Express from 'express';
-import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { errorHandler, notFound } from './backend/middlewares/errorHandler.js';
@@ -15,19 +14,6 @@ app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 // Servir archivos estáticos
 app.use(Express.static('public'));
-// Rutas específicas para las páginas HTML
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-app.get('/newUser', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/newUser.html'));
-});
-app.get('/conversation', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/conversation.html'));
-});
-app.get('/server', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/server.html'));
-});
 // Rutas API
 app.use('/api/users', userRouter);
 app.use('/api/messages', messageRouter);
@@ -48,4 +34,3 @@ server.on('error', (error) => {
         console.error('Error del servidor:', error);
     }
 });
-app.use(Express.static('public'));

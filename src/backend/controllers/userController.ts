@@ -1,3 +1,4 @@
+import pool from '../config/configDb.js';
 import { Request, Response } from 'express';
 import * as userModel from '../models/userModel.js';
 
@@ -91,5 +92,37 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
         } else {
             res.status(500).json({ message: "Error al actualizar usuario" });
         }
+    }
+}
+
+export async function loginUser(req: Request, res: Response): Promise<void> {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            res.status(400).json({ message: "Email y contraseña son requeridos" });
+            return;
+        }
+
+        const queryString = `SELECT * FROM "user" WHERE email = $1`;
+        const result = await pool.query(queryString, [email]);
+        const user = result.rows[0];
+
+        if (!user || user.password !== password) {
+            res.status(401).json({ message: "Email o contraseña incorrectos" });
+            return;
+        }
+
+        res.json({
+            message: "Login exitoso",
+            user: {
+                id: user.id,
+                userName: user.userName,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('Error en login:', error);
+        res.status(500).json({ message: "Error al iniciar sesión" });
     }
 }
