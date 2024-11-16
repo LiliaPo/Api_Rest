@@ -7,10 +7,10 @@ import routerApi from './routes/apiRouter.js';
 const app = Express();
 const port = 3000;
 // Importar las rutas
-const notificationsRoutes = require('./routes/notifications');
-const usersRoutes = require('./routes/users');
+import notificationsRoutes from './routes/notificationRouter.js';
+import usersRoutes from './routes/userRouter.js';
 
-app.use(Express.urlencoded({ extended: true }));
+app.use(Express.urlencoded({ extended: true }));    
 app.use(Express.static(publicPath));
 // Middlewares
 app.use(Express.json()); // Para manejar JSON en las peticiones

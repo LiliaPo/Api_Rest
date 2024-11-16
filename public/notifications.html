@@ -3,67 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Mensajes</title>
+    <title>Mensajes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="styles/style.css" rel="stylesheet">
+    <link href="/styles/style.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-4">
-        <!-- Botón Volver -->
-        <button onclick="window.location.href='newUser.html'" class="btn btn-secondary mb-3">
-            <i class="bi bi-arrow-left"></i> Volver
-        </button>
-
-        <h2>Sistema de Mensajes</h2>
-        
-        <!-- Enviar Mensajes -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4>Enviar Nuevo Mensaje</h4>
-            </div>
-            <div class="card-body">
-                <form id="messageForm">
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Mensaje</label>
-                        <textarea class="form-control" id="message" rows="3" required 
-                            placeholder="Escribe tu mensaje aquí..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
-                </form>
-            </div>
+        <!-- Botones de navegación -->
+        <div class="mb-3">
+            <button onclick="logout()" class="btn btn-secondary">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </button>
+            <button onclick="window.location.href='index.html'" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
         </div>
 
-        <!-- Mensajes Enviados -->
-        <div class="card">
-            <div class="card-header">
-                <h4>Mis Mensajes</h4>
+        <div class="row">
+            <!-- Mensajes del Servidor -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Mensajes del Servidor</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="message-container" id="serverMessages">
+                            <!-- Los mensajes del servidor se cargarán aquí -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body message-list" id="messagesList">
-                <!-- Los mensajes se mostrarán aquí -->
+
+            <!-- Enviar Mensajes -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Enviar Mensaje</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="message-container" id="myMessages">
+                            <!-- Mis mensajes enviados se mostrarán aquí -->
+                        </div>
+                        <form id="messageForm" class="mt-3">
+                            <div class="input-group">
+                                <textarea class="form-control" id="messageContent" rows="2" 
+                                        placeholder="Escribe tu mensaje aquí..." required></textarea>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-send"></i> Enviar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Enviar mensaje
-        document.getElementById('messageForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const messageText = document.getElementById('message').value;
-            
-            // Añadir mensaje a la lista
-            const messagesList = document.getElementById('messagesList');
-            const newMessage = document.createElement('div');
-            newMessage.className = 'message';
-            newMessage.innerHTML = `
-                <p class="mb-1">${messageText}</p>
-                <small class="text-muted">${new Date().toLocaleString()}</small>
-            `;
-            messagesList.insertBefore(newMessage, messagesList.firstChild);
-            
-            // Limpiar el formulario
-            document.getElementById('message').value = '';
+        // Verificar si el usuario está logueado
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+
+        if (!userId || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        // Cargar mensajes al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMessages();
+            setInterval(loadMessages, 3000); // Actualizar cada 3 segundos
         });
+
+        // Cargar mensajes
+        async function loadMessages() {
+            try {
+                const response = await fetch(`/api/messages/${userId}`);
+                const data = await response.json();
+                
+                const serverMessages = document.getElementById('serverMessages');
+                const myMessages = document.getElementById('myMessages');
+                
+                // Limpiar contenedores
+                serverMessages.innerHTML = '';
+                myMessages.innerHTML = '';
+
+                data.messages.forEach(message => {
+                    const isFromServer = message.sender_id === 1;
+                    const container = isFromServer ? serverMessages : myMessages;
+                    const time = new Date(message.created_at).toLocaleString();
+
+                    container.innerHTML += `
+                        <div class="message ${isFromServer ? 'received' : 'sent'}">
+                            <div class="message-header">
+                                ${isFromServer ? 'Servidor' : 'Tú'}
+                            </div>
+                            <div class="message-content">
+                                ${message.content}
+                            </div>
+                            <div class="message-time">
+                                ${time}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Scroll al último mensaje
+                serverMessages.scrollTop = serverMessages.scrollHeight;
+                myMessages.scrollTop = myMessages.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Enviar mensaje
+        document.getElementById('messageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('messageContent').value;
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiver_id: 1, // ID del servidor
+                        content: content,
+                        sender_id: parseInt(userId)
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('messageContent').value = '';
+                    await loadMessages();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error al enviar mensaje');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar mensaje');
+            }
+        });
+
+        // Función para cerrar sesión
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

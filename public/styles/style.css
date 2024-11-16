@@ -13,20 +13,21 @@ body {
     overflow-x: hidden;
 }
 
-.container {
-    background-color: rgba(255, 255, 255, 0.9);
+.container, .card, .message-container {
+    background-color: rgba(255, 255, 255, 0.3);
     margin-top: 20px;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
 
-.card {
-    background-color: rgba(255, 255, 255, 0.9);
+.card-header {
+    background-color: rgba(248, 249, 250, 0.3);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .table {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.4);
 }
 
 .hero {
@@ -68,13 +69,13 @@ h1 {
 }
 
 .message.received {
-    background-color: #e8f5e9;
+    background-color: rgba(232, 245, 233, 0.5);
     margin-right: 15%;
     border-radius: 15px 15px 15px 5px;
 }
 
 .message.sent {
-    background-color: #e3f2fd;
+    background-color: rgba(227, 242, 253, 0.5);
     margin-left: 15%;
     border-radius: 15px 15px 5px 15px;
 }
@@ -88,4 +89,48 @@ h1 {
 .message-header {
     font-weight: bold;
     margin-bottom: 5px;
+}
+
+/* Estilo para el input group de la contraseña */
+.input-group-text {
+    background-color: transparent;
+    border-left: none;
+}
+
+.form-control:not(:last-child) {
+    border-right: none;
+}
+
+/* Cuando el input tiene focus, mantener el estilo del addon */
+.form-control:focus + .input-group-text {
+    border-color: #86b7fe;
+}
+
+/* Estilos para la validación de contraseña */
+.form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.form-control:focus.is-valid {
+    border-color: #198754;
+}
+
+.form-control:focus.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-text.text-danger {
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+    min-height: 1.5em;
+}
+
+/* Estilo para el tooltip nativo */
+input:focus::placeholder {
+    color: transparent;
+}
+
+input[type="password"]:focus {
+    outline: none;
 } 
