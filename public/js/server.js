@@ -1,41 +1,61 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const usersList = document.getElementById('usersList');
 
-    document.getElementById('backBtn').addEventListener('click', () => {
-        window.history.back();
-    });
-
-    try {
-        console.log('Solicitando usuarios...');
+    // Cargar usuarios
+    const loadUsers = async () => {
         const response = await fetch('/api/server/getAllUsers');
-        console.log('Respuesta recibida:', response);
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
         const users = await response.json();
-        console.log('Usuarios recibidos:', users);
+        
+        usersList.innerHTML = users.map(user => `
+            <tr id="user-${user.id}">
+                <td>${user.id}</td>
+                <td class="editable" data-field="userName">${user.userName}</td>
+                <td class="editable" data-field="name">${user.name}</td>
+                <td class="editable" data-field="first_surname">${user.first_surname}</td>
+                <td class="editable" data-field="email">${user.email}</td>
+                <td>
+                    <button onclick="startEdit(${user.id})" class="edit-button">Editar</button>
+                    <button onclick="saveEdit(${user.id})" class="save-button" style="display:none">Guardar</button>
+                    <button onclick="deleteUser(${user.id})">Borrar</button>
+                </td>
+            </tr>
+        `).join('');
+    };
 
-        if (!users || users.length === 0) {
-            usersList.innerHTML = '<tr><td colspan="5">No hay usuarios registrados</td></tr>';
-            return;
-        }
+    // Editar
+    window.startEdit = (userId) => {
+        const row = document.getElementById(`user-${userId}`);
+        row.querySelectorAll('.editable').forEach(cell => cell.contentEditable = true);
+        row.querySelector('.edit-button').style.display = 'none';
+        row.querySelector('.save-button').style.display = 'inline';
+    };
 
-        usersList.innerHTML = '';
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.id || ''}</td>
-                <td>${user.userName || ''}</td>
-                <td>${user.name || ''}</td>
-                <td>${user.lastname || ''}</td>
-                <td>${user.email || ''}</td>
-            `;
-            usersList.appendChild(row);
+    // Guardar
+    window.saveEdit = async (userId) => {
+        const row = document.getElementById(`user-${userId}`);
+        const userData = {};
+        row.querySelectorAll('.editable').forEach(cell => {
+            userData[cell.dataset.field] = cell.textContent;
         });
-    } catch (error) {
-        console.error('Error detallado:', error);
-        usersList.innerHTML = `<tr><td colspan="5" class="error">Error al cargar usuarios: ${error.message}</td></tr>`;
-    }
+
+        await fetch(`/api/server/users/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        row.querySelectorAll('.editable').forEach(cell => cell.contentEditable = false);
+        row.querySelector('.edit-button').style.display = 'inline';
+        row.querySelector('.save-button').style.display = 'none';
+    };
+
+    // Borrar
+    window.deleteUser = async (userId) => {
+        if (confirm('¿Seguro que quieres borrar este usuario?')) {
+            await fetch(`/api/server/users/${userId}`, { method: 'DELETE' });
+            await loadUsers();
+        }
+    };
+
+    await loadUsers();
 }); 

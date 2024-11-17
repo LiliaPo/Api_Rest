@@ -1,31 +1,14 @@
-document.getElementById('backBtn').addEventListener('click', () => {
-    window.location.href = '/';
-});
+document.addEventListener('DOMContentLoaded', () => {
+    const registerForm = document.getElementById('registerForm');
+    const backBtn = document.getElementById('backBtn');
 
-const passwordInput = document.getElementById('password');
-const passwordError = document.getElementById('passwordError');
-const form = document.getElementById('registerForm');
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-passwordInput.addEventListener('input', () => {
-    const password = passwordInput.value;
-    const isValid = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$/.test(password);
-    
-    if (!isValid) {
-        passwordError.style.display = 'block';
-        passwordInput.setCustomValidity('Contraseña inválida');
-    } else {
-        passwordError.style.display = 'none';
-        passwordInput.setCustomValidity('');
-    }
-});
-
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (form.checkValidity()) {
-        const formData = {
-            username: document.getElementById('username').value,
+        const userData = {
+            userName: document.getElementById('username').value,
             name: document.getElementById('name').value,
-            lastname: document.getElementById('lastname').value,
+            first_surname: document.getElementById('lastname').value,
             email: document.getElementById('email').value,
             password: document.getElementById('password').value
         };
@@ -36,20 +19,23 @@ form.addEventListener('submit', async (e) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(userData)
             });
 
-            const data = await response.json();
-
             if (response.ok) {
-                localStorage.setItem('token', data.token);
-                window.location.href = '/html/conversation.html';
+                const data = await response.json();
+                localStorage.setItem('userId', data.user.id);
+                window.location.href = '/html/messaging.html';
             } else {
-                alert(data.message || 'Error en el registro');
+                alert('Error al registrar usuario');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al intentar registrar');
+            alert('Error al registrar usuario');
         }
-    }
+    });
+
+    backBtn.addEventListener('click', () => {
+        window.location.href = '/';
+    });
 }); 

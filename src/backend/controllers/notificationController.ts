@@ -1,49 +1,42 @@
 import { Request, Response } from 'express';
-import * as notificationService from '../services/notificationService.js';
+import { messageModel } from '../models/messageModel';
+import { notificationService } from '../services/notificationService';
 
-export async function sendNotification(req: Request, res: Response): Promise<void> {
-    try {
-        const { userId, message, type } = req.body;
-        console.log('Datos recibidos:', { userId, message, type });
-        
-        const notification = await notificationService.sendNotification(
-            parseInt(userId),
-            message,
-            1 // ID del servidor
-        );
-        
-        res.status(201).json({
-            message: "Notificación enviada correctamente",
-            notification
-        });
-    } catch (error) {
-        console.error('Error al enviar notificación:', error);
-        res.status(500).json({ message: "Error al enviar la notificación" });
-    }
-}
-
-export async function getUserNotifications(req: Request, res: Response): Promise<void> {
+// Obtener notificaciones de un usuario
+export const getNotifications = async (req: Request, res: Response) => {
     try {
         const userId = parseInt(req.params.userId);
-        console.log('Buscando notificaciones para usuario:', userId);
-        
-        const notifications = await notificationService.getUserNotifications(userId);
-        res.json(notifications);
+        const messages = await notificationService.getMessages(userId);
+        res.json(messages);
     } catch (error) {
-        console.error('Error al obtener notificaciones:', error);
-        res.status(500).json({ message: "Error al obtener las notificaciones" });
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al obtener notificaciones' });
     }
-}
+};
 
-export async function markNotificationAsRead(req: Request, res: Response): Promise<void> {
+// Enviar una notificación
+export const sendNotification = async (req: Request, res: Response) => {
     try {
-        const notificationId = parseInt(req.params.notificationId);
-        console.log('Marcando como leída:', { notificationId });
-        
-        await notificationService.markAsRead(notificationId);
-        res.json({ message: "Notificación marcada como leída" });
+        const { content } = req.body;
+        const userId = parseInt(req.params.userId);
+        const serverId = 1; // ID del servidor
+
+        const message = await notificationService.sendMessage(serverId, userId, content);
+        res.status(201).json(message);
     } catch (error) {
-        console.error('Error al marcar notificación:', error);
-        res.status(500).json({ message: "Error al marcar la notificación" });
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al enviar notificación' });
     }
-}
+};
+
+// Marcar notificación como leída
+export const markAsRead = async (req: Request, res: Response) => {
+    try {
+        const messageId = parseInt(req.params.id);
+        await messageModel.markMessageAsRead(messageId);
+        res.json({ message: 'Mensaje marcado como leído' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al marcar mensaje como leído' });
+    }
+};

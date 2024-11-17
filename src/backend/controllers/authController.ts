@@ -1,70 +1,77 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import { userService } from '../services/userService';
 import jwt from 'jsonwebtoken';
 import { pool } from '../config/configDb';
 
-export const login = async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.body;
-        
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        const user = result.rows[0];
-
-        if (!user) {
-            return res.status(401).json({ message: 'Usuario no encontrado' });
-        }
-
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(401).json({ message: 'Contraseña incorrecta' });
-        }
-
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'secret');
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
-    } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor' });
-    }
-};
-
 export const register = async (req: Request, res: Response) => {
     try {
-        const { userName, name, first_surname, email, password } = req.body;
+        const userData = {
+            userName: req.body.userName,
+            name: req.body.name,
+            first_surname: req.body.first_surname,
+            email: req.body.email,
+            password: req.body.password
+        };
 
-        // Verificar si el usuario ya existe
-        const userExists = await pool.query(
-            'SELECT * FROM "user" WHERE email = $1 OR userName = $2',
-            [email, userName]
-        );
-
-        if (userExists.rows.length > 0) {
-            return res.status(400).json({ message: 'El usuario o email ya existe' });
+        // Verificar si el nombre de usuario ya existe
+        const existingUserName = await userService.findUserByUserName(userData.userName);
+        if (existingUserName) {
+            return res.status(400).json({ 
+                message: 'El nombre de usuario ya está en uso. Por favor, elige otro.'
+            });
         }
 
-        // Insertar nuevo usuario
-        const result = await pool.query(
-            'INSERT INTO "user" (userName, name, first_surname, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id, userName, name, first_surname, email',
-            [userName, name, first_surname, email, password]
-        );
+        // Verificar si el email ya existe
+        const existingEmail = await userService.findUserByEmail(userData.email);
+        if (existingEmail) {
+            return res.status(400).json({ 
+                message: 'El email ya está registrado'
+            });
+        }
 
-        const user = result.rows[0];
-        console.log('Usuario registrado:', user);
+        // Crear nuevo usuario
+        const newUser = await userService.createUser(userData);
 
         res.status(201).json({
+            success: true,
             message: 'Usuario registrado correctamente',
             user: {
-                id: user.id,
-                userName: user.userName,
-                name: user.name,
-                first_surname: user.first_surname,
-                email: user.email
+                id: newUser.id,
+                userName: newUser.userName,
+                email: newUser.email
             }
         });
     } catch (error) {
         console.error('Error al registrar usuario:', error);
-        res.status(500).json({ 
-            message: 'Error al registrar usuario',
-            error: error instanceof Error ? error.message : 'Error desconocido'
+        res.status(500).json({ message: 'Error al registrar usuario' });
+    }
+};
+
+export const login = async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await userService.findUserByEmail(email);
+        if (!user) {
+            return res.status(401).json({ message: 'Usuario no encontrado' });
+        }
+
+        if (user.password !== password) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Login exitoso',
+            user: {
+                id: user.id,
+                userName: user.userName,
+                email: user.email
+            }
         });
+    } catch (error) {
+        console.error('Error en login:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 

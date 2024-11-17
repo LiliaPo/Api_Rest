@@ -9,23 +9,9 @@
 <body>
     <div class="container login-container">
         <h2>Iniciar Sesión</h2>
-        <form id="loginForm" class="form login-form" autocomplete="new-password">
-            <input type="email" 
-                   id="email" 
-                   placeholder="Email" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_email_123"
-                   value=""
-                   data-lpignore="true">
-            <input type="password" 
-                   id="password" 
-                   placeholder="Contraseña" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_password_123"
-                   value=""
-                   data-lpignore="true">
+        <form id="loginForm" class="form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
             <div class="button-group">
                 <button type="button" id="backBtn" class="secondary-button">Volver</button>
                 <button type="submit" class="primary-button">Iniciar Sesión</button>
@@ -33,21 +19,6 @@
         </form>
         <p>¿No tienes cuenta? <a href="/html/newUser.html">Regístrate</a></p>
     </div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Limpiar campos al cargar
-        document.getElementById('email').value = '';
-        document.getElementById('password').value = '';
-        
-        // Prevenir autocompletado
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.value = '';
-            input.setAttribute('autocomplete', 'new-password');
-            input.setAttribute('data-lpignore', 'true');
-        });
-    });
-    </script>
     <script src="../js/login.js"></script>
 </body>
 </html> 

@@ -9,47 +9,15 @@
 <body>
     <div class="container register-container">
         <h2>Registro de Usuario</h2>
-        <form id="registerForm" class="form" autocomplete="new-password">
-            <input type="text" 
-                   id="username" 
-                   placeholder="Nombre de usuario" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_username_123"
-                   value=""
-                   data-lpignore="true">
-            <input type="text" 
-                   id="name" 
-                   placeholder="Nombre" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_name_123"
-                   value=""
-                   data-lpignore="true">
-            <input type="text" 
-                   id="lastname" 
-                   placeholder="Apellido" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_lastname_123"
-                   value=""
-                   data-lpignore="true">
-            <input type="email" 
-                   id="email" 
-                   placeholder="Email" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_email_123"
-                   value=""
-                   data-lpignore="true">
-            <input type="password" 
-                   id="password" 
-                   placeholder="Contraseña" 
-                   required 
-                   autocomplete="new-password"
-                   name="random_password_123"
-                   value=""
-                   data-lpignore="true">
+        <form id="registerForm" class="form">
+            <input type="text" id="username" placeholder="Nombre de usuario" required>
+            <input type="text" id="name" placeholder="Nombre" required>
+            <input type="text" id="lastname" placeholder="Apellido" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <div class="password-field">
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <div class="password-hint">Mínimo: 8 caracteres, 1 mayúscula, 1 número, 1 símbolo (!@#$%^&*)</div>
+            </div>
             <div class="button-group">
                 <button type="button" id="backBtn" class="secondary-button">Volver</button>
                 <button type="submit" class="primary-button">Registrarse</button>
@@ -57,17 +25,6 @@
         </form>
         <p>¿Ya tienes cuenta? <a href="/html/login.html">Iniciar sesión</a></p>
     </div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Limpiar campos al cargar
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.value = '';
-            input.setAttribute('autocomplete', 'new-password');
-            input.setAttribute('data-lpignore', 'true');
-        });
-    });
-    </script>
     <script src="../js/newUser.js"></script>
 </body>
 </html> 

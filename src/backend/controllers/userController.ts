@@ -1,40 +1,61 @@
 import { Request, Response } from 'express';
-import * as userModel from '../models/userModel.js';
+import { userModel } from '../models/userModel';
 
-export async function getAllUsers(req: Request, res: Response): Promise<void> {
+export const getAllUsers = async (req: Request, res: Response) => {
     try {
         const users = await userModel.getAllUsers();
         res.json(users);
     } catch (error) {
-        handleError(error, res);
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al obtener usuarios' });
     }
-}
+};
 
-export async function getUserById(req: Request, res: Response): Promise<void> {
+export const getUserById = async (req: Request, res: Response) => {
     try {
         const userId = parseInt(req.params.id);
         const user = await userModel.findUserById(userId);
         
         if (!user) {
-            res.status(404).json({ message: "Usuario no encontrado" });
-            return;
+            return res.status(404).json({ message: 'Usuario no encontrado' });
         }
-
+        
         res.json(user);
     } catch (error) {
-        handleError(error, res);
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al obtener usuario' });
     }
-}
+};
 
-export async function deleteUser(req: Request, res: Response): Promise<void> {
+export const deleteUser = async (req: Request, res: Response) => {
     try {
         const userId = parseInt(req.params.id);
         await userModel.deleteUser(userId);
-        res.json({ message: "Usuario eliminado correctamente" });
+        res.json({ message: 'Usuario eliminado correctamente' });
     } catch (error) {
-        handleError(error, res);
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al eliminar usuario' });
     }
-}
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const userId = parseInt(req.params.id);
+        const userData = req.body;
+        
+        const user = await userModel.findUserById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        
+        // Aquí iría la lógica de actualización cuando la implementemos en el modelo
+        
+        res.json({ message: 'Usuario actualizado correctamente' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al actualizar usuario' });
+    }
+};
 
 export async function createUser(req: Request, res: Response): Promise<void> {
     // ... código de creación de usuario

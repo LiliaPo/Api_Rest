@@ -1,27 +1,36 @@
 import { Request, Response } from 'express';
-import * as notificationService from '../services/notificationService.js';
+import { messageService } from '../services/messageService';
 
-export async function getUserMessages(req: Request, res: Response): Promise<void> {
+export const getMessages = async (req: Request, res: Response) => {
     try {
         const userId = parseInt(req.params.userId);
-        const messages = await notificationService.getUserNotifications(userId);
-        res.json({ messages });
+        console.log('Obteniendo mensajes para usuario:', userId);
+        
+        const messages = await messageService.getMessages(userId);
+        console.log('Mensajes encontrados:', messages);
+        
+        res.json(messages);
     } catch (error) {
-        handleError(error, res);
+        console.error('Error al obtener mensajes:', error);
+        res.status(500).json({ message: 'Error al obtener mensajes' });
     }
-}
+};
 
-export async function sendMessage(req: Request, res: Response): Promise<void> {
+export const sendMessage = async (req: Request, res: Response) => {
     try {
-        const { receiver_id, content, sender_id } = req.body;
-        const message = await notificationService.sendNotification(receiver_id, content, sender_id);
-        res.status(201).json({ message: "Mensaje enviado correctamente", data: message });
-    } catch (error) {
-        handleError(error, res);
-    }
-}
+        const { sender_id, receiver_id, content } = req.body;
+        console.log('Enviando mensaje:', { sender_id, receiver_id, content });
 
-function handleError(error: any, res: Response): void {
-    console.error('Error en messageController:', error);
-    res.status(500).json({ message: "Error en el servidor" });
-} 
+        const message = await messageService.saveMessage({
+            sender_id,
+            receiver_id,
+            content
+        });
+
+        console.log('Mensaje guardado:', message);
+        res.status(201).json(message);
+    } catch (error) {
+        console.error('Error al enviar mensaje:', error);
+        res.status(500).json({ message: 'Error al enviar mensaje' });
+    }
+}; 

@@ -1,68 +1,42 @@
 import { Request, Response } from 'express';
-import * as messageModel from '../models/messageModel.js';
+import { messageModel, Message } from '../models/messageModel';
+import { notificationModel } from '../models/notificationModel';
 
-export async function getUserNotifications(req: Request, res: Response): Promise<void> {
+export const getNotifications = async (req: Request, res: Response) => {
     try {
         const userId = parseInt(req.params.userId);
         const serverId = 1; // ID del servidor
 
-        if (isNaN(userId)) {
-            res.status(400).json({ message: "ID de usuario inválido" });
-            return;
-        }
-
         const messages = await messageModel.getMessagesBetweenUsers(userId, serverId);
         
-        // Ordenar mensajes por fecha
-        const sortedMessages = messages.sort((a, b) => {
+        const sortedMessages = messages.sort((a: Message, b: Message) => {
             const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
             const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-            return dateA - dateB;
+            return dateB - dateA; // Orden descendente
         });
 
-        res.json({
-            success: true,
-            messages: sortedMessages
-        });
+        res.json(sortedMessages);
     } catch (error) {
-        handleError(error, res);
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al obtener notificaciones' });
     }
-}
+};
 
-export async function sendNotification(req: Request, res: Response): Promise<void> {
+export const sendNotification = async (req: Request, res: Response) => {
     try {
-        const { receiver_id, content, sender_id } = req.body;
-
-        if (!validateMessageData(receiver_id, content)) {
-            res.status(400).json({ message: "Datos de mensaje inválidos" });
-            return;
-        }
+        const { content } = req.body;
+        const userId = parseInt(req.params.userId);
+        const serverId = 1; // ID del servidor
 
         const message = await messageModel.saveMessage({
-            sender_id: parseInt(sender_id),
-            receiver_id: parseInt(receiver_id),
+            sender_id: serverId,
+            receiver_id: userId,
             content
         });
 
-        res.status(201).json({
-            success: true,
-            message: "Mensaje enviado correctamente",
-            data: message
-        });
+        res.status(201).json(message);
     } catch (error) {
-        handleError(error, res);
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Error al enviar notificación' });
     }
-}
-
-function validateMessageData(receiver_id: any, content: string): boolean {
-    return Boolean(
-        receiver_id &&
-        content &&
-        !isNaN(parseInt(receiver_id))
-    );
-}
-
-function handleError(error: any, res: Response): void {
-    console.error('Error en notificaciones:', error);
-    res.status(500).json({ message: "Error en el servidor" });
-} 
+}; 

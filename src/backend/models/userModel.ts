@@ -23,14 +23,38 @@ export const userModel = {
     },
 
     createUser: async (userData: User) => {
-        const query = `
-            INSERT INTO "user" (userName, name, first_surname, email, password)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *
-        `;
-        const values = [userData.userName, userData.name, userData.first_surname, userData.email, userData.password];
-        const result = await pool.query(query, values);
-        return result.rows[0];
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const insertQuery = `
+                INSERT INTO "user" (userName, name, first_surname, email, password)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id, userName, name, first_surname, email
+            `;
+            
+            const values = [
+                userData.userName,
+                userData.name,
+                userData.first_surname,
+                userData.email,
+                userData.password
+            ];
+
+            console.log('Ejecutando inserción con valores:', values);
+            const result = await client.query(insertQuery, values);
+            
+            await client.query('COMMIT');
+            console.log('Usuario insertado:', result.rows[0]);
+            
+            return result.rows[0];
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('Error en createUser:', error);
+            throw error;
+        } finally {
+            client.release();
+        }
     },
 
     getAllUsers: async () => {

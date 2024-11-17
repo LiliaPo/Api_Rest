@@ -1,51 +1,34 @@
 import { Request, Response } from 'express';
-import { messageModel } from '../models/messageModel';
-import { userModel } from '../models/userModel';
+import { userService } from '../services/userService';
 
+// Obtener todos los usuarios
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
-        const users = await userModel.getAllUsers();
-        console.log('Usuarios encontrados:', users);
+        const users = await userService.getAllUsers();
         res.json(users);
     } catch (error) {
-        console.error('Error al obtener usuarios:', error);
         res.status(500).json({ message: 'Error al obtener usuarios' });
     }
 };
 
-export const sendMessage = async (req: Request, res: Response) => {
+// Actualizar usuario
+export const updateUser = async (req: Request, res: Response) => {
     try {
-        const { sender_id, receiver_id, content } = req.body;
-        const message = await messageModel.saveMessage({
-            sender_id,
-            receiver_id,
-            content
-        });
-        res.status(201).json(message);
+        const userId = parseInt(req.params.id);
+        const updatedUser = await userService.updateUser(userId, req.body);
+        res.json(updatedUser);
     } catch (error) {
-        console.error('Error al enviar mensaje:', error);
-        res.status(500).json({ message: 'Error al enviar mensaje' });
+        res.status(500).json({ message: 'Error al actualizar usuario' });
     }
 };
 
-export const getMessages = async (req: Request, res: Response) => {
+// Eliminar usuario
+export const deleteUser = async (req: Request, res: Response) => {
     try {
-        const userId = parseInt(req.params.userId);
-        const messages = await messageModel.getMessagesBetweenUsers(userId, userId);
-        res.json(messages);
+        const userId = parseInt(req.params.id);
+        await userService.deleteUser(userId);
+        res.json({ message: 'Usuario eliminado' });
     } catch (error) {
-        console.error('Error al obtener mensajes:', error);
-        res.status(500).json({ message: 'Error al obtener mensajes' });
-    }
-};
-
-export const markMessageAsRead = async (req: Request, res: Response) => {
-    try {
-        const messageId = parseInt(req.params.id);
-        await messageModel.markMessageAsRead(messageId);
-        res.json({ message: 'Mensaje marcado como leído' });
-    } catch (error) {
-        console.error('Error al marcar mensaje como leído:', error);
-        res.status(500).json({ message: 'Error al marcar mensaje como leído' });
+        res.status(500).json({ message: 'Error al eliminar usuario' });
     }
 }; 

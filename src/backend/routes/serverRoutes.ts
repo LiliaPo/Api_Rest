@@ -1,23 +1,10 @@
 import { Router } from 'express';
-import {
-    getAllUsers,
-    sendMessage,
-    getMessages,
-    getNotifications,
-    markNotificationAsRead
-} from '../controllers/serverController';
+import { getAllUsers, updateUser, deleteUser } from '../controllers/serverController';
 
 const router = Router();
 
-// Rutas de usuarios
-router.get('/users', getAllUsers);
-
-// Rutas de mensajes
-router.post('/messages', sendMessage);
-router.get('/messages/:userId', getMessages);
-
-// Rutas de notificaciones
-router.get('/notifications/:userId', getNotifications);
-router.put('/notifications/:id/read', markNotificationAsRead);
+router.get('/getAllUsers', getAllUsers);
+router.put('/users/:id', updateUser);
+router.delete('/users/:id', deleteUser);
 
 export default router; 

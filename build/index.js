@@ -11,15 +11,14 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(express_1.default.json());
 app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
-app.use('/frontend', express_1.default.static(path_1.default.join(__dirname, 'frontend')));
 // Importar rutas
-const serverRoutes_1 = __importDefault(require("./backend/routes/serverRoutes"));
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const serverRoutes_1 = __importDefault(require("./routes/serverRoutes"));
+const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
 // Rutas API
+app.use('/api/auth', authRoutes_1.default);
 app.use('/api/server', serverRoutes_1.default);
-// Rutas de páginas
-app.get('/messaging', (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '../public/html/messaging.html'));
-});
+app.use('/api/messages', messageRoutes_1.default);
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
