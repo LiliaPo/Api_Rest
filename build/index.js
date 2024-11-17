@@ -1,36 +1,25 @@
-import Express from 'express';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { errorHandler, notFound } from './backend/middlewares/errorHandler.js';
-import userRouter from './backend/routes/userRouter.js';
-import messageRouter from './backend/routes/messageRouter.js';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const app = Express();
-const defaultPort = 3000;
-const port = process.env.PORT ? parseInt(process.env.PORT) : defaultPort;
-// Middlewares
-app.use(Express.json());
-app.use(Express.urlencoded({ extended: true }));
-// Servir archivos estáticos
-app.use(Express.static('public'));
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
+require('dotenv').config();
+const app = (0, express_1.default)();
+const PORT = process.env.PORT || 3001;
+// Middleware
+app.use(express_1.default.json());
+app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
+app.use('/frontend', express_1.default.static(path_1.default.join(__dirname, 'frontend')));
+// Importar rutas
+const serverRoutes_1 = __importDefault(require("./backend/routes/serverRoutes"));
 // Rutas API
-app.use('/api/users', userRouter);
-app.use('/api/messages', messageRouter);
-// Manejo de errores
-app.use(notFound);
-app.use(errorHandler);
-const server = app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-    console.log(`Accede a la aplicación en: http://localhost:${port}`);
+app.use('/api/server', serverRoutes_1.default);
+// Rutas de páginas
+app.get('/messaging', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../public/html/messaging.html'));
 });
-// Manejo de errores del servidor
-server.on('error', (error) => {
-    if (error.code === 'EADDRINUSE') {
-        console.log(`Puerto ${port} en uso, intentando puerto ${port + 1}`);
-        server.listen(port + 1);
-    }
-    else {
-        console.error('Error del servidor:', error);
-    }
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

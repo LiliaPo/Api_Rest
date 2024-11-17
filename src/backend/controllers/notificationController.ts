@@ -1,13 +1,16 @@
 import { Request, Response } from 'express';
-import * as notificationModel from '../models/notificationModel.js';
+import * as notificationService from '../services/notificationService.js';
 
 export async function sendNotification(req: Request, res: Response): Promise<void> {
     try {
         const { userId, message, type } = req.body;
-        console.log('Datos recibidos:', { userId, message, type }); // Para debugging
+        console.log('Datos recibidos:', { userId, message, type });
         
-        const notification = await notificationModel.createNotification(message, type);
-        await notificationModel.assignNotificationToUser(userId, notification.id);
+        const notification = await notificationService.sendNotification(
+            parseInt(userId),
+            message,
+            1 // ID del servidor
+        );
         
         res.status(201).json({
             message: "Notificación enviada correctamente",
@@ -22,9 +25,9 @@ export async function sendNotification(req: Request, res: Response): Promise<voi
 export async function getUserNotifications(req: Request, res: Response): Promise<void> {
     try {
         const userId = parseInt(req.params.userId);
-        console.log('Buscando notificaciones para usuario:', userId); // Para debugging
+        console.log('Buscando notificaciones para usuario:', userId);
         
-        const notifications = await notificationModel.getUserNotifications(userId);
+        const notifications = await notificationService.getUserNotifications(userId);
         res.json(notifications);
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
@@ -34,11 +37,10 @@ export async function getUserNotifications(req: Request, res: Response): Promise
 
 export async function markNotificationAsRead(req: Request, res: Response): Promise<void> {
     try {
-        const userId = parseInt(req.params.userId);
         const notificationId = parseInt(req.params.notificationId);
-        console.log('Marcando como leída:', { userId, notificationId }); // Para debugging
+        console.log('Marcando como leída:', { notificationId });
         
-        await notificationModel.markNotificationAsRead(userId, notificationId);
+        await notificationService.markAsRead(notificationId);
         res.json({ message: "Notificación marcada como leída" });
     } catch (error) {
         console.error('Error al marcar notificación:', error);

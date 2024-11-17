@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajería</title>
+    <link rel="stylesheet" href="../styles/style.css">
+</head>
+<body>
+    <div class="container messaging-container">
+        <h2>Mensajería</h2>
+        <div class="chat-container">
+            <div class="messages-box">
+                <h3>Mensajes Recibidos</h3>
+                <div id="receivedMessages" class="messages-list">
+                    <!-- Mensajes recibidos -->
+                </div>
+            </div>
+            <div class="messages-box">
+                <h3>Enviar Mensaje</h3>
+                <div id="sendMessages" class="messages-list">
+                    <!-- Mensajes enviados aparecerán aquí -->
+                </div>
+                <div class="message-input">
+                    <textarea id="messageInput" placeholder="Escribe tu mensaje aquí..."></textarea>
+                    <button id="sendButton" class="primary-button">Enviar</button>
+                </div>
+            </div>
+        </div>
+        <button id="backBtn" class="secondary-button">Volver</button>
+    </div>
+    <script src="../js/conversation.js"></script>
+</body>
+</html> 

@@ -1,18 +1,32 @@
-import Express from 'express';
+import { Router } from 'express';
 import path from 'path';
-import { publicPath } from '../config/configData.js';
 
-const staticRouter = Express.Router();
+const router = Router();
 
-staticRouter.get('/newUser', (req: Express.Request, res: Express.Response) => {
-    const targetFilePath = path.join(publicPath, "/newUser.html");
-    res.sendFile(targetFilePath);
+// Página principal
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../public/index.html'));
 });
 
-staticRouter.get('/usersManagement', (req: Express.Request, res: Express.Response) => {
-    const targetFilePath = path.join(publicPath, "/usersManagement.html");
-    res.sendFile(targetFilePath);
+// Página de login
+router.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../public/login.html'));
 });
 
-export {staticRouter} ;
+// Página de registro
+router.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../public/register.html'));
+});
+
+// Página de mensajería
+router.get('/messages', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../public/messages.html'));
+});
+
+// Página de notificaciones
+router.get('/notifications', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../public/notifications.html'));
+});
+
+export default router;
 

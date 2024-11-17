@@ -1,4 +1,4 @@
-import pool from '../config/configDb';
+import { pool } from '../config/configDb';
 
 export const getUsers = async () => {
     const result = await pool.query('SELECT * FROM "user"');
